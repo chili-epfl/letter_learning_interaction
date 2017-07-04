@@ -15,35 +15,16 @@ rospy.init_node("activity_manager")
 # HACK: should properly configure the path from an option
 configure_logging()
 
-# -- interaction config parameters come from launch file
-STOP_TOPIC = rospy.get_param('~stop_request_topic','stop_learning');#Listen for when stop card has been shown to the robot
-
 #get appropriate angles for looking at things
 headAngles_lookAtTablet_down, headAngles_lookAtTablet_right, headAngles_lookAtTablet_left, headAngles_lookAtPerson_front, headAngles_lookAtPerson_right, headAngles_lookAtPerson_left = InteractionSettings.getHeadAngles()
 #initialise arrays of phrases to say at relevant times
 introPhrase, demo_response_phrases, asking_phrases_after_feedback, asking_phrases_after_word, word_response_phrases, word_again_response_phrases, testPhrase, thankYouPhrase, introLearningWordsPhrase, introDrawingPhrase, againLearningWordsPhrase, againDrawingPhrase, introJokePhrase, againJokePhrase,refusing_response_phrases, wrong_way_response_phrases = InteractionSettings.getPhrases(LANGUAGE)
 #trajectory publishing parameters
 t0, dt, delayBeforeExecuting = InteractionSettings.getTrajectoryTimings(naoWriting)
-
 start_time = time.time()
 
-pub_activity = rospy.Publisher(ACTIVITY_TOPIC, String, queue_size=10) #Publishes the current activity which is performed
-pub_activity_time = rospy.Publisher('/activity_time', Int32, queue_size=10)  #Publishes the time spend in the current activity
+pub_activity = rospy.Publisher(ACTIVITY_TOPIC, String, queue_size=10)
 
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-stopRequestReceived = False
-def onStopRequestReceived(message):
-    global stopRequestReceived
-    stopRequestReceived = True
-
-changeActivityReceived = None
-def onChangeActivity(message):
-    global changeActivityReceived
-    changeActivityReceived = message.data
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    
 def startInteraction(infoFromPrevState):
     global nextSideToLookAt
     #print('------------------------------------------ STARTING_INTERACTION')
@@ -60,8 +41,7 @@ def startInteraction(infoFromPrevState):
 
     nextState = "ACTIVITY"
     infoForNextState = {'state_cameFrom': "STARTING_INTERACTION"}
-    if stopRequestReceived:
-        nextState = "STOPPING"
+
     return nextState, infoForNextState
 
 infoToRestore_waitForTabletToConnect = None
@@ -82,8 +62,6 @@ def waitForTabletToConnect(infoFromPrevState):
     else:
         rospy.sleep(0.1) #don't check again immediately
 
-    if stopRequestReceived:
-        nextState = "STOPPING"
     return nextState, infoForNextState    
 
 infoToRestore_waitForRobotToConnect = None
@@ -105,47 +83,13 @@ def waitForRobotToConnect(infoFromPrevState):
     else:
         rospy.sleep(0.1) #don't check again immediately
 
-    if stopRequestReceived:
-        nextState = "STOPPING"
     return nextState, infoForNextState
        
 def activity(infoFromPrevState):
-    global start_time 
-    global changeActivityReceived
 
-    
-    if infoFromPrevState['state_cameFrom'] != "ACTIVITY":
-        #print('------------------------------------------ waiting_for_robot_to_connect')
-        rospy.loginfo("STATE: ACTIVITY")    
-    
-    if changeActivityReceived == 'drawing_nao':
-        changeActivityReceived = " "
-        start_time = time.time()
-
-        nextState = "ACTIVITY"
-        infoForNextState = {'state_cameFrom': "ACTIVITY"}
-    elif changeActivityReceived == 'learning_words_nao':
-        changeActivityReceived = " "
-        start_time = time.time()
-
-        nextState = "ACTIVITY"
-        infoForNextState = {'state_cameFrom': "ACTIVITY"}
-    elif changeActivityReceived == 'joke_nao':
-        changeActivityReceived = " "
-        start_time = time.time()
-
-        nextState = "ACTIVITY"
-        infoForNextState = {'state_cameFrom': "ACTIVITY"}
-    else:
-        nextState = "ACTIVITY"
-        infoForNextState = {'state_cameFrom': "ACTIVITY"}
-    rospy.sleep(1)        
-    end_time = time.time()
-    elapsed = end_time - start_time        
-    pub_activity_time.publish(elapsed)     
+    nextState = "ACTIVITY"
+    infoForNextState = {'state_cameFrom': "ACTIVITY"}   
         
-    if stopRequestReceived:
-        nextState = "STOPPING"
     return nextState, infoForNextState
     
 def stopInteraction(infoFromPrevState):
@@ -160,8 +104,6 @@ def stopInteraction(infoFromPrevState):
     rospy.signal_shutdown('Interaction exited')
     return nextState, infoForNextState
     
-    
-### --------------------------------------------------------------- MAIN
 settings_shapeLearners = []
 
 
@@ -176,24 +118,12 @@ if __name__ == "__main__":
     stateMachine.set_start("WAITING_FOR_ROBOT_TO_CONNECT")
     infoForStartState = {'state_goTo': ["STARTING_INTERACTION"], 'state_cameFrom': None}
 
-    #listen for when to stop
-    stop_subscriber = rospy.Subscriber(STOP_TOPIC, Empty, onStopRequestReceived)
-    #listen for an activity change
-    change_activity_subscriber = rospy.Subscriber(ACTIVITY_TOPIC, String, onChangeActivity)
-
-    from letter_learning_interaction.watchdog import Watchdog #TODO: Make a ROS server so that *everyone* can access the connection statuses
-    tabletWatchdog = Watchdog('watchdog_clear/tablet', 0.4)
-    
     #initialise display manager for shapes (manages positioning of shapes)
     rospy.loginfo('Waiting for display manager services to become available')
-
     rospy.sleep(2.0)  #Allow some time for the subscribers to do their thing, 
-                        #or the first message will be missed (eg. first traj on tablet, first clear request locally)
-
     rospy.loginfo("Nao configuration: writing=%s, speaking=%s (%s), standing=%s, handedness=%s" % (naoWriting, naoSpeaking, LANGUAGE, naoStanding, NAO_HANDEDNESS))
 
     myBroker, postureProxy, motionProxy, textToSpeech, armJoints_standInit = ConnexionToNao.setConnexion(naoConnected, naoWriting, naoStanding, NAO_IP, LANGUAGE, effector)
 
     stateMachine.run(infoForStartState)   
-    rospy.spin()   
-    tabletWatchdog.stop()
+    rospy.spin()

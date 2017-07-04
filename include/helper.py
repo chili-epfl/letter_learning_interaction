@@ -1,23 +1,21 @@
 import numpy
 import os.path
+import rospy
+import logging
+
 from scipy import interpolate
 from copy import deepcopy
 from shape_learning.shape_modeler import ShapeModeler
 from letter_learning_interaction.interaction_settings import InteractionSettings
-
-import rospy
 from std_msgs.msg import Float64MultiArray, MultiArrayDimension
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
 
-import logging; generatedWordLogger = logging.getLogger("word_logger")
 
-#get appropriate angles for looking at things
+generatedWordLogger = logging.getLogger("word_logger")
 headAngles_lookAtTablet_down, headAngles_lookAtTablet_right, headAngles_lookAtTablet_left, headAngles_lookAtPerson_front, headAngles_lookAtPerson_right, headAngles_lookAtPerson_left = InteractionSettings.getHeadAngles()
 
 FRONT_INTERACTION = True
-
-# -------------------------------------------------------------- HELPER METHODS
 
 def configure_logging(path = "/tmp"):
 
@@ -33,7 +31,6 @@ def configure_logging(path = "/tmp"):
 
     generatedWordLogger.addHandler(handler)
     generatedWordLogger.setLevel(logging.DEBUG)
-
   
 def downsampleShape(shape, NUMPOINTS_SHAPEMODELER):
     #downsample user-drawn shape so appropriate size for shapeLearner
@@ -61,8 +58,7 @@ def downsampleShape(shape, NUMPOINTS_SHAPEMODELER):
     shape = numpy.reshape(shape, (-1, 1)) #explicitly make it 2D array with only one column
 
     return shape
-    
-    
+       
 def make_bounding_box_msg(bbox, selected=False):
 
     bb = Float64MultiArray()
@@ -94,8 +90,6 @@ def separate_strokes_with_density(shapedWord):
 
     return pen_ups
 
-
-
 def make_traj_msg(shapedWord, deltaT, FRAME, delayBeforeExecuting, t0,pen_ups, log = False):
 
     traj = Path()
@@ -120,7 +114,6 @@ def make_traj_msg(shapedWord, deltaT, FRAME, delayBeforeExecuting, t0,pen_ups, l
             point.pose.position.x = x
             point.pose.position.y = y   
             point.header.frame_id = FRAME
-            print point.header.frame_id
             point.header.stamp = rospy.Time(t0 + pointIdx * deltaT) #@TODO allow for variable time between points for now
 
             if first or pen_up[i]==1 or pen_up[i-1]==1:# or pen_up[i+1]==1:
@@ -133,7 +126,6 @@ def make_traj_msg(shapedWord, deltaT, FRAME, delayBeforeExecuting, t0,pen_ups, l
             i+=1
 
     return traj
-
 
 def lookAtTablet(motionProxy, effector):
     if FRONT_INTERACTION:

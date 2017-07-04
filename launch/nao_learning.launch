@@ -23,10 +23,8 @@
     <arg name="stop_request_topic" default="stop_learning" />    
     <arg name="test_request_topic" default="test_learning" />
     <arg name="touch_info_topic" default="touch_info" />
-    <arg name="gesture_info_topic" default="gesture_info" />
     <arg name="shape_writing_finished_topic" default="shape_finished" />
     <arg name="user_drawn_shapes_topic" default="user_drawn_shapes" />
-    <arg name="new_teacher_topic" default="new_child" />
     <arg name="current_activity_topic" default="activity" />
     <arg name="time_activity_topic" default="time_activity" />
     <arg name="nb_repetitions_topic" default="nb_repetitions" />
@@ -52,7 +50,6 @@
     <param name="/activityManager/language" type="str" value="$(arg language)"/>    
     <param name="/activityManager/nao_handedness" type="str" value="$(arg nao_handedness)"/>
     <param name="/activityManager/current_activity_topic" type="str" value="$(arg current_activity_topic)"/>
-    <param name="/activityManager/new_teacher_topic" type="str" value="$(arg new_teacher_topic)"/>
     <param name="/activityManager/camera_publishing_status_topic" type="str" value="$(arg camera_publishing_status_topic)"/>  
     <param name="/activityManager/clear_writing_surface_topic" type="str" value="$(arg clear_writing_surface_topic)"/>
     <param name="/activityManager/time_activity_topic" value="$(arg time_activity_topic)"/>
@@ -72,14 +69,13 @@
                 <arg name="clear_writing_surface_topic" value="$(arg clear_writing_surface_topic)" />
             </include>
         </group>
-    </group> 
+    </group>
 
     <!-- Start the node which switches the activities -->
     <node pkg="letter_learning_interaction" type="activity_manager.py" name="activity_manager">
-	<param name="stop_request_topic" type="str" value="$(arg stop_request_topic)"/>
-	<param name="shape_log" type="str" value="$(arg shape_log)" />
-	<!--<param name="current_activity_topic" type="str" value="$(arg current_activity_topic)"/>
-	<param name="use_robot_in_interaction" type="bool" value="$(arg use_robot_in_interaction)"/>
+        <param name="stop_request_topic" type="str" value="$(arg stop_request_topic)"/>
+        <param name="shape_log" type="str" value="$(arg shape_log)" />
+        <param name="use_robot_in_interaction" type="bool" value="$(arg use_robot_in_interaction)"/>
         <param name="language" type="str" value="$(arg language)"/>
         <param name="nao_ip" type="str" value="$(arg nao_ip_to_use)"/>
         <param name="nao_handedness" type="str" value="$(arg nao_handedness)"/>
@@ -92,22 +88,13 @@
         <param name="words_to_write_topic" type="str" value="$(arg words_to_write_topic)"/>
         <param name="stop_request_topic" type="str" value="$(arg stop_request_topic)"/>
         <param name="test_request_topic" type="str" value="$(arg test_request_topic)"/>
-        <param name="gesture_info_topic" type="str" value="$(arg gesture_info_topic)"/>
         <param name="shape_writing_finished_topic" type="str" value="$(arg shape_writing_finished_topic)"/>
         <param name="user_drawn_shapes_topic" type="str" value="$(arg user_drawn_shapes_topic)"/>
-        <param name="new_teacher_topic" type="str" value="$(arg new_teacher_topic)"/>
         
         <param name="trajectory_output_topic" type="str" value="$(arg trajectory_visualization_topic)"/>
         <param name="trajectory_output_nao_topic" type="str" value="$(arg trajectory_nao_topic)"/>        
         <param name="clear_writing_surface_topic" type="str" value="$(arg clear_writing_surface_topic)"/>
         <param name="camera_publishing_status_topic" type="str" value="$(arg camera_publishing_status_topic)"/>-->
-    </node>
-
-    <!-- Start the drawer activity -->
-    <node pkg="letter_learning_interaction" type="drawing_nao.py" name="drawing_nao">
-        <param name="stop_request_topic" type="str" value="$(arg stop_request_topic)"/>
-        <param name="shape_log" type="str" value="$(arg shape_log)" />
-        <param name="dataset_directory" type="str" value="$(arg letter_model_dataset_directory)" />
     </node>
 
     <!-- Start the learning algorithm -->
@@ -117,7 +104,6 @@
 	<param name="test_request_topic" type="str" value="$(arg test_request_topic)"/>
 	<param name="processed_user_shape_topic" type="str" value="$(arg user_drawn_shapes_topic)"/>
 	<param name="words_to_write_topic" type="str" value="$(arg words_to_write_topic)"/>
-	<param name="gesture_info_topic" type="str" value="$(arg gesture_info_topic)"/>
 	<param name="shape_writing_finished_topic" type="str" value="$(arg shape_writing_finished_topic)"/>
 	<param name="shape_log" type="str" value="$(arg shape_log)" />
 	<param name="trajectory_output_nao_topic" type="str" value="$(arg trajectory_nao_topic)"/>
@@ -135,10 +121,7 @@
     <node pkg="letter_learning_interaction" type="tablet_input_interpreter.py" name="tablet_input_interpreter">   
         <param name="shape_feedback_topic" type="str" value="$(arg shape_feedback_topic)"/>
         <param name="touch_info_topic" type="str" value="$(arg touch_info_topic)"/>
-        <param name="gesture_info_topic" type="str" value="$(arg gesture_info_topic)"/>
     </node>
-
-    <node pkg="letter_learning_interaction" type="log.py" name="log"/>
 
     <node pkg="robot_interaction" type="animations_manager.py" name="animations_manager">
         <param name="id_robot" value="1" />
@@ -150,7 +133,7 @@
         <param name="topic_poses" value="topic_poses" />
         <param name="topic_activity" value="state_activity" />
         <param name="topic_end_animation" value="topic_end_animation" />
-        <param name="parkinson_scale" value="2" />
+        <param name="parkinson_scale" value="0" />
     </node>
 
 </launch>
