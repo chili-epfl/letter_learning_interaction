@@ -6,7 +6,7 @@ import logging
 from scipy import interpolate
 from copy import deepcopy
 from shape_learning.shape_modeler import ShapeModeler
-from letter_learning_interaction.interaction_settings import InteractionSettings
+from interaction_settings import InteractionSettings
 from std_msgs.msg import Float64MultiArray, MultiArrayDimension
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped

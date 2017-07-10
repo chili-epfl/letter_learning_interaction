@@ -13,8 +13,6 @@ Provided nodes:
 
 - `tablet_input_interpreter.py`: listens for tablet inputs from the user and translates them into shape-specific events based on the location at which they occurred. [requires a running `display_manager_server` node]
 
-- `word_card_detector.py`: listens for frames which represent fiducial markers for a dictionary of words, and publishes the associated words (used to request a word to be written by the user). Tested with [chilitags for ROS](https://github.com/chili-epfl/ros_markers).
-
 Letters dataset configuration
 -----------------------------
 

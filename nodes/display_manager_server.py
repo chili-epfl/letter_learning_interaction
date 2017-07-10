@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from letter_learning_interaction.srv import *
 import rospy
-from letter_learning_interaction.shape_display_manager import ShapeDisplayManager
+from shape_display_manager import ShapeDisplayManager
 
 def handle_clear_all_shapes(request):
     shapeDisplayManager.clearAllShapes();

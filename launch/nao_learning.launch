@@ -20,15 +20,12 @@
     <!-- Inputs to learning algorithm -->
     <arg name="shape_feedback_topic" default="shape_feedback" />
     <arg name="words_to_write_topic" default="words_to_write" />
-    <arg name="stop_request_topic" default="stop_learning" />    
-    <arg name="test_request_topic" default="test_learning" />
     <arg name="touch_info_topic" default="touch_info" />
     <arg name="shape_writing_finished_topic" default="shape_finished" />
     <arg name="user_drawn_shapes_topic" default="user_drawn_shapes" />
     <arg name="current_activity_topic" default="activity" />
     <arg name="time_activity_topic" default="time_activity" />
     <arg name="nb_repetitions_topic" default="nb_repetitions" />
-    <arg name="grade_topic" default="user_feedback"/>
     
     <!-- Outputs from learning algorithm -->
     <arg name="trajectory_visualization_topic" default="write_traj" /> 
@@ -74,9 +71,6 @@
 
     <!-- Start the learning algorithm -->
     <node pkg="letter_learning_interaction" type="learning_words_nao.py" name="learning_words_nao">	   
-        <param  name="grade_topic" type="str" value="$(arg grade_topic)"/>
-	<param name="stop_request_topic" type="str" value="$(arg stop_request_topic)"/>
-	<param name="test_request_topic" type="str" value="$(arg test_request_topic)"/>
 	<param name="processed_user_shape_topic" type="str" value="$(arg user_drawn_shapes_topic)"/>
 	<param name="words_to_write_topic" type="str" value="$(arg words_to_write_topic)"/>
 	<param name="shape_writing_finished_topic" type="str" value="$(arg shape_writing_finished_topic)"/>
@@ -86,7 +80,7 @@
 	<param name="shape_feedback_topic" type="str" value="$(arg shape_feedback_topic)"/>
 	<param name="writing_surface_frame_id" type="str" value="$(arg writing_surface_frame_id)"/>
 	<param name="dataset_directory" type="str" value="$(arg letter_model_dataset_directory)" />
-        <param name="nb_repetitions_topic" type="str" value="$(arg nb_repetitions_topic)"/>    
+    <param name="nb_repetitions_topic" type="str" value="$(arg nb_repetitions_topic)"/>    
     </node>
 
     <!-- Start the display manager server, which will be accessed by the gesture_manager node and the relevant shape_learning package's node -->

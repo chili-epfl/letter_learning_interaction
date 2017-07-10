@@ -19,7 +19,8 @@ Implemented but not in use:
 the learning algorithm from when it was touch-feedback only.
 """
 import os.path
-import logging; wordLogger = logging.getLogger("word_logger")
+import logging
+wordLogger = logging.getLogger("word_logger")
 
 def configure_logging(path = "/tmp"):
 

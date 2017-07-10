@@ -23,6 +23,8 @@ LANGUAGE = rospy.get_param('/activityManager/language','english')
 NAO_HANDEDNESS = rospy.get_param('/activityManager/nao_handedness','right')
 TIME_ACTIVITY_TOPIC = rospy.get_param('/activityManager/time_activity_topic','time_activity') #Controls the activity switch
 CLEAR_SURFACE_TOPIC = rospy.get_param('/activityManager/clear_writing_surface_topic','clear_screen')
+PUBLISH_STATUS_TOPIC = rospy.get_param('/activityManager/camera_publishing_status_topic','camera_publishing_status')
+
 personSide = rospy.get_param('/activityManager/person_side', NAO_HANDEDNESS.lower()) #side where person is (left/right)
 
 FRONT_INTERACTION = True

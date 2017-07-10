@@ -11,14 +11,14 @@ resulting learned shapes for the robot and tablet to draw.
 import numpy
 import rospy
 
-from letter_learning_interaction.interaction_settings import InteractionSettings
-from letter_learning_interaction.helper import configure_logging, downsampleShape, make_bounding_box_msg, make_traj_msg, separate_strokes_with_density, lookAtTablet, lookAndAskForFeedback
+from interaction_settings import InteractionSettings
+from helper import configure_logging, downsampleShape, make_bounding_box_msg, make_traj_msg, separate_strokes_with_density, lookAtTablet, lookAndAskForFeedback
 from letter_learning_interaction.srv import *
-from letter_learning_interaction.text_shaper import TextShaper, ScreenManager
-from letter_learning_interaction.state_machine import StateMachine
-from letter_learning_interaction.config_params import *
+from text_shaper import TextShaper, ScreenManager
+from state_machine import StateMachine
+from config_params import *
 from letter_learning_interaction.msg import Shape as ShapeMsg
-from letter_learning_interaction.set_connexion import ConnexionToNao
+from set_connexion import ConnexionToNao
 
 from allograph.learning_manager import LearningManager
 from shape_learning.shape_modeler import ShapeModeler
