@@ -71,31 +71,6 @@
         </group>
     </group>
 
-    <!-- Start the node which switches the activities -->
-    <node pkg="letter_learning_interaction" type="activity_manager.py" name="activity_manager">
-        <param name="stop_request_topic" type="str" value="$(arg stop_request_topic)"/>
-        <param name="shape_log" type="str" value="$(arg shape_log)" />
-        <param name="use_robot_in_interaction" type="bool" value="$(arg use_robot_in_interaction)"/>
-        <param name="language" type="str" value="$(arg language)"/>
-        <param name="nao_ip" type="str" value="$(arg nao_ip_to_use)"/>
-        <param name="nao_handedness" type="str" value="$(arg nao_handedness)"/>
-        <param name="nao_standing" type="bool" value="$(arg nao_standing)" />
-        <param name="dataset_directory" type="str" value="$(arg letter_model_dataset_directory)" />
-        <param name="shape_log" type="str" value="$(arg shape_log)" />
-        <param name="writing_surface_frame_id" type="str" value="$(arg writing_surface_frame_id)"/>
-
-        <param name="shape_feedback_topic" type="str" value="$(arg shape_feedback_topic)"/>
-        <param name="words_to_write_topic" type="str" value="$(arg words_to_write_topic)"/>
-        <param name="stop_request_topic" type="str" value="$(arg stop_request_topic)"/>
-        <param name="test_request_topic" type="str" value="$(arg test_request_topic)"/>
-        <param name="shape_writing_finished_topic" type="str" value="$(arg shape_writing_finished_topic)"/>
-        <param name="user_drawn_shapes_topic" type="str" value="$(arg user_drawn_shapes_topic)"/>
-        
-        <param name="trajectory_output_topic" type="str" value="$(arg trajectory_visualization_topic)"/>
-        <param name="trajectory_output_nao_topic" type="str" value="$(arg trajectory_nao_topic)"/>        
-        <param name="clear_writing_surface_topic" type="str" value="$(arg clear_writing_surface_topic)"/>
-        <param name="camera_publishing_status_topic" type="str" value="$(arg camera_publishing_status_topic)"/>-->
-    </node>
 
     <!-- Start the learning algorithm -->
     <node pkg="letter_learning_interaction" type="learning_words_nao.py" name="learning_words_nao">	   
