@@ -32,8 +32,8 @@ from ast import literal_eval
 
 from naoqi import ALProxy
 
-motion = ALProxy("ALMotion", NAO_IP, 9559)
-tracker = ALProxy("ALTracker", NAO_IP, 9559)
+motion = ALProxy("ALMotion", NAO_IP, PORT)
+tracker = ALProxy("ALTracker", NAO_IP, PORT)
  
 rospy.init_node("learning_words_nao")
 
@@ -47,6 +47,7 @@ SHAPE_TOPIC = rospy.get_param('trajectory_output_topic','/write_traj') #Name of 
 BOUNDING_BOXES_TOPIC = rospy.get_param('bounding_boxes_topic','/boxes_to_draw') #Name of topic to publish bounding boxes of letters to
 SHAPE_TOPIC_DOWNSAMPLED = rospy.get_param('trajectory_output_nao_topic','/write_traj_downsampled') #Name of topic to publish shapes to
 SHAPE_LOGGING_PATH = rospy.get_param('shape_log','') # path to a log file where all learning steps will be stored
+
 
 #tablet params        
 SHAPE_FINISHED_TOPIC = rospy.get_param('shape_writing_finished_topic','shape_finished') #Waits for the button of finish in the tablet to be pressed
@@ -88,6 +89,7 @@ def onUserDrawnShapeReceived(shape):
     """
     The main task here is to identify the letter(s) we got demos for
     """
+    debug.publish("onUserDrawnShapeReceived")
     global demoShapesReceived
     global activeLetter
 
@@ -113,7 +115,6 @@ def onUserDrawnShapeReceived(shape):
             if activeLetter:
                 shape.shapeType = activeLetter
                 activeLetter = None
-                rospy.loginfo('Received demonstration for selected letter ' + shape.shapeType)
             else:
                 letter, bb = screenManager.find_letter(shape.path)
 
@@ -219,6 +220,8 @@ def trackFace():
 # ------------------------------- METHODS FOR DIFFERENT STATES IN STATE MACHINE
 def respondToDemonstrationWithFullWord(infoFromPrevState):
 
+    debug.publish("waitForFeedback")
+
     demoShapesReceived = infoFromPrevState['demoShapesReceived']
 
     letters = "".join([s.shapeType for s in demoShapesReceived])
@@ -244,7 +247,7 @@ def respondToDemonstrationWithFullWord(infoFromPrevState):
         rospy.logdebug("Downsampling %s..." % shapeName)
         glyph = downsampleShape(glyph, NUMPOINTS_SHAPEMODELER)
         rospy.loginfo("Downsampling of %s done. Demo received for %s" % (shapeName, shapeName))
-        new_shape_msg, score = learningManager.respond_to_demonstration_letter(glyph, shapeName, 0)
+        new_shape_msg, score = learningManager.respond_to_demonstration_letter(glyph, shapeName, 0.5)
 	
 	tmp_shape_msg = ShapeMsg()
 		
@@ -310,6 +313,7 @@ def waitForShapeToFinish(infoFromPrevState):
 
     #first time into this state preparations
     if infoFromPrevState['state_cameFrom'] != "WAITING_FOR_LETTER_TO_FINISH":
+        debug.publish("waitForShapeToFinish -- 0")
         pub_state_activity.publish("WAITING_FOR_LETTER_TO_FINISH")
         infoToRestore_waitForShapeToFinish = infoFromPrevState
 
@@ -319,6 +323,7 @@ def waitForShapeToFinish(infoFromPrevState):
     #once shape has finished
     global shapeFinished
     if shapeFinished:
+        debug.publish("waitForShapeToFinish -- shapeFinished")
         waitForShapeToFinish
         
         # draw the templates for the demonstrations
@@ -340,6 +345,8 @@ def waitForShapeToFinish(infoFromPrevState):
     
     if nextState is None:
         #default behaviour is to keep waiting
+        debug.publish("waitForShapeToFinish -- waiting")
+
         rospy.sleep(0.1) #don't check straight away
         nextState = 'WAITING_FOR_LETTER_TO_FINISH'
         infoForNextState = {'state_cameFrom': 'WAITING_FOR_LETTER_TO_FINISH'}
@@ -354,6 +361,8 @@ def respondToNewWord(infoFromPrevState):
     wordToLearn = infoFromPrevState['wordReceived']
     wordSeenBefore = learningManager.seen_before(wordToLearn)
     learningManager.word_to_learn(wordToLearn)
+
+    debug.publish("respondToNewWord")
     
     
     # Stop tracker.
@@ -411,6 +420,8 @@ def respondToNewWord(infoFromPrevState):
 def askForFeedback(infoFromPrevState):
     global nb_repetitions
     global nextSideToLookAt
+
+    debug.publish("askForFeedback")
 
     #print('------------------------------------------ ASKING_FOR_FEEDBACK')
     rospy.loginfo("STATE: ASKING_FOR_FEEDBACK")
@@ -483,6 +494,8 @@ def startInteraction(infoFromPrevState):
 def waitForWord(infoFromPrevState):
     global wordReceived
 
+    debug.publish("waitForWord")
+
     if infoFromPrevState['state_cameFrom'] != "WAITING_FOR_WORD":
         pub_state_activity.publish("WAITING_FOR_WORD")
         pub_camera_status.publish(True) #turn camera on
@@ -503,6 +516,8 @@ def waitForWord(infoFromPrevState):
 
 def waitForFeedback(infoFromPrevState):
     global changeActivityReceived
+    debug.publish("waitForFeedback")
+    
     
     # Then, start tracker.
     pub_camera_status.publish(True) #turn camera on
@@ -517,6 +532,7 @@ def waitForFeedback(infoFromPrevState):
 
     global demoShapesReceived    
     if demoShapesReceived:
+        debug.publish("waitForFeedback -- 025")
         infoForNextState ['demoShapesReceived'] = demoShapesReceived
         demoShapesReceived = []
         nextState = "RESPONDING_TO_DEMONSTRATION_FULL_WORD"   
@@ -597,12 +613,13 @@ if __name__ == "__main__":
     #listen for user-drawn shapes
     shape_subscriber = rospy.Subscriber(PROCESSED_USER_SHAPE_TOPIC, ShapeMsg, onUserDrawnShapeReceived)
     #listen for user-drawn finger gestures
-    gesture_subscriber = rospy.Subscriber(GESTURE_TOPIC, PointStamped, onSetActiveShapeGesture);     
+    gesture_subscriber = rospy.Subscriber(GESTURE_TOPIC, PointStamped, onSetActiveShapeGesture)
+    debug = rospy.Publisher("debug", String, queue_size=10)
 
     rospy.wait_for_service('clear_all_shapes')
     rospy.sleep(2.0)  #Allow some time for the subscribers to do their thing, 
 
-    myBroker, postureProxy, motionProxy, textToSpeech, armJoints_standInit = ConnexionToNao.setConnexion(naoConnected, naoWriting, naoStanding, NAO_IP, LANGUAGE, effector)
+    myBroker, postureProxy, motionProxy, textToSpeech, armJoints_standInit = ConnexionToNao.setConnexion(naoConnected, naoWriting, naoStanding, NAO_IP, PORT, LANGUAGE, effector)
     learningManager = LearningManager(datasetDirectory, datasetDirectory, robotDirectory,datasetDirectory)
 
     textShaper = TextShaper()

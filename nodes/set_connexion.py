@@ -8,21 +8,20 @@ from naoqi import ALBroker, ALProxy
 
 class ConnexionToNao():
     @staticmethod
-    def setConnexion(naoConnected, naoWriting, naoStanding, NAO_IP, LANGUAGE, effector):
+    def setConnexion(naoConnected, naoWriting, naoStanding, NAO_IP, PORT, LANGUAGE, effector):
         
         if naoConnected:
-            port = 9559
             myBroker = ALBroker("myBroker", #I'm not sure that pyrobots doesn't already have one of these open called NAOqi?
                     "0.0.0.0",   # listen to anyone
                     0,           # find a free port and use it
                     NAO_IP,      # parent broker IP
-                    port)        # parent broker port
-            motionProxy = ALProxy("ALMotion", NAO_IP, port)
+                    PORT)        # parent broker port
+            motionProxy = ALProxy("ALMotion", NAO_IP, PORT)
         
-            postureProxy = ALProxy("ALRobotPosture", NAO_IP, port)
-            textToSpeech = ALProxy("ALTextToSpeech", NAO_IP, port)   
+            postureProxy = ALProxy("ALRobotPosture", NAO_IP, PORT)
+            textToSpeech = ALProxy("ALTextToSpeech", NAO_IP, PORT)   
             textToSpeech.setLanguage(LANGUAGE.capitalize())
-            #textToSpeech.setVolume(1.0)
+
             if naoWriting:
                 if naoStanding:
                     #postureProxy.goToPosture("StandInit",0.2)

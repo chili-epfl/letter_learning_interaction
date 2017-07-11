@@ -1,6 +1,5 @@
 <launch>
     <arg name="use_robot_in_interaction" default="true" /> <!-- if false, robot-related commands will be skipped -->
-    <arg name="nao_ip" default="195.168.1.4" /> <!-- IP address of non-simulated robot (ignored if simulated) -->
     <arg name="use_sim_nao" default="false" /> <!-- if true, webots simulation expected to be running -->
     <arg name="nao_writing" default="$(arg use_robot_in_interaction)" /> <!-- if false, robot will not stand and move its arm to write -->
     <arg name="nao_standing" default="false" /> <!-- if false, robot will stay in the 'crouched' pose, but still writing -->
@@ -35,11 +34,13 @@
     
 
     <rosparam param="/wait_to_sync_traj" subst_value="true">$(arg nao_writing)</rosparam> <!-- if using robot, tablet must wait to display at the same time as it -->
-    <arg name="nao_ip_to_use" value="127.0.0.1" if="$(arg use_sim_nao)" /> <!-- look for local simulator -->
-    <arg name="nao_ip_to_use" value="$(arg nao_ip)" unless="$(arg use_sim_nao)" />
+    <arg name="nao_ip" default="127.0.0.1" />
+    <arg name="nao_port" default="9559" />
+
     
     <!-- Redifined as a global variables -->
-    <param name="/activityManager/nao_ip" type="str" value="$(arg nao_ip_to_use)"/>
+    <param name="/activityManager/nao_ip" type="str" value="$(arg nao_ip)"/>
+    <param name="/activityManager/nao_port" type="str" value="$(arg nao_port)"/>
     <param name="/activityManager/nao_speaking" type="bool" value="$(arg nao_speaking)" />
     <param name="/activityManager/nao_writing" type="bool" value="$(arg nao_writing)" />
     <param name="/activityManager/nao_standing" type="bool" value="$(arg nao_standing)" />
@@ -59,7 +60,8 @@
             <include file="$(find nao_trajectory_following)/launch/nao_writing_on_surface.launch" >
                 <arg name="use_sim_nao" value="$(arg use_sim_nao)" />
                 <arg name="nao_handedness" value="$(arg nao_handedness)" />
-                <arg name="nao_ip" value="$(arg nao_ip_to_use)"/>
+                <arg name="nao_ip" value="$(arg nao_ip)"/>
+                <arg name="nao_port" value="$(arg nao_port)"/>
                 <arg name="writing_surface_frame_id" value="$(arg writing_surface_frame_id)" /> 
                 <arg name="trajectory_visualization_input_topic" value="$(arg trajectory_visualization_topic)" />
                 <arg name="trajectory_nao_input_topic" value="$(arg trajectory_nao_topic)" />
@@ -70,17 +72,18 @@
 
 
     <!-- Start the learning algorithm -->
-    <node pkg="letter_learning_interaction" type="learning_words_nao.py" name="learning_words_nao">	   
-	<param name="processed_user_shape_topic" type="str" value="$(arg user_drawn_shapes_topic)"/>
-	<param name="words_to_write_topic" type="str" value="$(arg words_to_write_topic)"/>
-	<param name="shape_writing_finished_topic" type="str" value="$(arg shape_writing_finished_topic)"/>
-	<param name="shape_log" type="str" value="$(arg shape_log)" />
-	<param name="trajectory_output_nao_topic" type="str" value="$(arg trajectory_nao_topic)"/>
-	<param name="trajectory_output_topic" type="str" value="$(arg trajectory_visualization_topic)"/>
-	<param name="shape_feedback_topic" type="str" value="$(arg shape_feedback_topic)"/>
-	<param name="writing_surface_frame_id" type="str" value="$(arg writing_surface_frame_id)"/>
-	<param name="dataset_directory" type="str" value="$(arg letter_model_dataset_directory)" />
-    <param name="nb_repetitions_topic" type="str" value="$(arg nb_repetitions_topic)"/>    
+    <node pkg="letter_learning_interaction" type="learning_words_nao.py" name="learning_words_nao">
+        <param name="nao_port" value="$(arg use_robot_in_interaction)" /> 
+    	<param name="processed_user_shape_topic" type="str" value="$(arg user_drawn_shapes_topic)"/>
+    	<param name="words_to_write_topic" type="str" value="$(arg words_to_write_topic)"/>
+    	<param name="shape_writing_finished_topic" type="str" value="$(arg shape_writing_finished_topic)"/>
+    	<param name="shape_log" type="str" value="$(arg shape_log)" />
+    	<param name="trajectory_output_nao_topic" type="str" value="$(arg trajectory_nao_topic)"/>
+    	<param name="trajectory_output_topic" type="str" value="$(arg trajectory_visualization_topic)"/>
+    	<param name="shape_feedback_topic" type="str" value="$(arg shape_feedback_topic)"/>
+    	<param name="writing_surface_frame_id" type="str" value="$(arg writing_surface_frame_id)"/>
+    	<param name="dataset_directory" type="str" value="$(arg letter_model_dataset_directory)" />
+        <param name="nb_repetitions_topic" type="str" value="$(arg nb_repetitions_topic)"/>    
     </node>
 
     <!-- Start the display manager server, which will be accessed by the gesture_manager node and the relevant shape_learning package's node -->
@@ -94,8 +97,8 @@
 
     <node pkg="robot_interaction" type="animations_manager.py" name="animations_manager">
         <param name="id_robot" value="1" />
-        <param name="nao_ip" value="$(arg nao_ip_to_use)" />
-        <param name="nao_port" value="9559" />
+        <param name="nao_ip" value="$(arg nao_ip)" />
+        <param name="nao_port" value="$(arg nao_port)"/>
         <param name="periodUpdateTimerBSI" value="0.1" />  
         <param name="topic_animations" value="topic_animations" />
         <param name="topic_settings" value="topic_settings" />

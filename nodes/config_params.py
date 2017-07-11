@@ -8,10 +8,10 @@ Created on Sat Mar 21 20:16:25 2015
 
 import rospy
 
-# -- interaction config parameters come from launch file
-
 #Nao parameters
 NAO_IP = rospy.get_param('/activityManager/nao_ip','127.0.0.1') #default behaviour is to connect to simulator locally
+PORT = int(rospy.get_param('/activityManager/nao_port',42312)) #default behaviour is to connect to simulator locally
+
 naoSpeaking = rospy.get_param('/activityManager/nao_speaking',True) #whether or not the robot should speak
 naoWriting = rospy.get_param('/activityManager/nao_writing',True) #whether or not the robot should move its arms
 naoStanding = rospy.get_param('/activityManager/nao_standing', True) #whether or not the robot should stand or rest on its knies 
