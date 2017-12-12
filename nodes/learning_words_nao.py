@@ -158,7 +158,10 @@ def onWordReceived(message):
         rospy.loginfo('Received word: '+ wordReceived)
         # Reset counter of repetitions
         nb_repetitions = 0
+        debug.publish("onWordReceived True")
+        nextState = "RESPONDING_TO_NEW_WORD"
     else:
+        debug.publish("onWordReceived False")
         wordReceived = None #ignore 
 
 feedbackReceived = None    
@@ -176,7 +179,6 @@ def onNewChildReceived(message):
     global nextSideToLookAt
     if naoWriting:
         if naoStanding:
-            #postureProxy.goToPosture("StandInit", 0.3)
             # Stop tracker.
             tracker.stopTracker()
             tracker.unregisterAllTargets()
@@ -516,8 +518,9 @@ def waitForWord(infoFromPrevState):
 
 def waitForFeedback(infoFromPrevState):
     global changeActivityReceived
+    global wordReceived
+
     debug.publish("waitForFeedback")
-    
     
     # Then, start tracker.
     pub_camera_status.publish(True) #turn camera on
@@ -538,9 +541,14 @@ def waitForFeedback(infoFromPrevState):
         nextState = "RESPONDING_TO_DEMONSTRATION_FULL_WORD"   
         infoForNextState['state_goTo'] = [nextState] #ensure robot is connected before going to that state
         nextState = 'WAITING_FOR_ROBOT_TO_CONNECT'
+
+    if wordReceived != None:
+        infoForNextState['wordReceived'] = wordReceived
+        wordReceived = None
+        nextState = "RESPONDING_TO_NEW_WORD"
         
-    if nextState != 'WAITING_FOR_FEEDBACK':
-        pub_camera_status.publish(False) #turn camera off
+    # if nextState != 'WAITING_FOR_FEEDBACK':
+    #     pub_camera_status.publish(False) #turn camera off
 
     if nextState is None: 
         #default behaviour is to loop

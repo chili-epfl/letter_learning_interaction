@@ -83,7 +83,7 @@ def separate_strokes_with_density(shapedWord):
             dists.append(numpy.sqrt((x1-x2)**2+(y1-y2)**2))
         mean_dist = numpy.mean(dists)
         density = numpy.array(dists)/mean_dist
-        pen_up = numpy.zeros(len(density)+1)
+        pen_up = numpy.zeros(len(density))
         pen_up[density>3] = 1
         pen_up[-1] = 1
         pen_ups.append(pen_up)

@@ -24,7 +24,6 @@ class ConnexionToNao():
 
             if naoWriting:
                 if naoStanding:
-                    #postureProxy.goToPosture("StandInit",0.2)
                     motionProxy.wbEnableEffectorControl(effector, True) #turn whole body motion control on
                 else:
                     #motionProxy.rest()
